@@ -179,7 +179,11 @@ struct bpf_elf_map __section_maps cilium_ipcache = {
 	.size_value	= sizeof(struct remote_endpoint_info),
 	.pinning	= PIN_GLOBAL_NS,
 	.max_elem	= IPCACHE_MAP_SIZE,
+#ifdef HAVE_LPM_MAP_TYPE
+	.flags		= BPF_F_NO_PREALLOC,
+#else
 	.flags		= CONDITIONAL_PREALLOC,
+#endif
 };
 
 #ifndef SKIP_CALLS_MAP
