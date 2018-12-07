@@ -1,4 +1,4 @@
-// Copyright 2016-2017 Authors of Cilium
+// Copyright 2016-2018 Authors of Cilium
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -479,8 +479,14 @@ func EnableMapPreAllocation() {
 	atomic.StoreUint32(&preAllocateMapSetting, 0)
 }
 
-// GetPreAllocateMapFlags returns the map flags for map which use conditional
+// getPreAllocateMapFlags returns the map flags for map which use conditional
 // pre-allocation.
-func GetPreAllocateMapFlags() uint32 {
+func getPreAllocateMapFlags(t MapType) uint32 {
+	switch {
+	case !t.allowsPreallocation():
+		return BPF_F_NO_PREALLOC
+	case t.requiresPreallocation():
+		return 0
+	}
 	return atomic.LoadUint32(&preAllocateMapSetting)
 }
