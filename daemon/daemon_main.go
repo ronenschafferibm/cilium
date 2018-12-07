@@ -503,7 +503,8 @@ func init() {
 		"prefilter-device", "", "undefined", "Device facing external network for XDP prefiltering")
 	flags.StringVarP(&option.Config.ModePreFilter,
 		"prefilter-mode", "", option.ModePreFilterNative, "Prefilter mode { "+option.ModePreFilterNative+" | "+option.ModePreFilterGeneric+" } (default: "+option.ModePreFilterNative+")")
-	flags.Bool(option.PreAllocateMapsName, false, "Enable BPF map pre-allocation")
+	flags.Bool(option.PreAllocateMapsName, true, "Enable BPF map pre-allocation")
+	viper.BindEnv(option.PreAllocateMapsName, "CILIUM_PREALLOCATE_BPF_MAPS")
 	// We expect only one of the possible variables to be filled. The evaluation order is:
 	// --prometheus-serve-addr, CILIUM_PROMETHEUS_SERVE_ADDR, then PROMETHEUS_SERVE_ADDR
 	// The second environment variable (without the CILIUM_ prefix) is here to
