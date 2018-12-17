@@ -105,7 +105,7 @@ func InitIdentityAllocator(owner IdentityAllocatorOwner) {
 		allocator.WithSuffix(owner.GetNodeSuffix()),
 		allocator.WithEvents(events),
 		allocator.WithMasterKeyProtection(),
-		allocator.WithPrefixMask(idpool.ID(option.Config.ClusterID<<option.ClusterIDShift)))
+		allocator.WithPrefixMask(idpool.ID(option.Config.ClusterID<<identity.ClusterIDShift)))
 	if err != nil {
 		log.WithError(err).Fatal("Unable to initialize identity allocator")
 	}

@@ -25,6 +25,10 @@ import (
 )
 
 const (
+	// ClusterIDShift specifies the number of bits the cluster ID will be
+	// shifted
+	ClusterIDShift = 16
+
 	// MinimalNumericIdentity represents the minimal numeric identity not
 	// used for reserved purposes.
 	MinimalNumericIdentity = NumericIdentity(256)
@@ -272,8 +276,11 @@ func DelReservedNumericIdentity(identity NumericIdentity) error {
 	return nil
 }
 
-// NumericIdentity is the numeric representation of a security identity / a
-// security policy.
+// NumericIdentity is the numeric representation of a security identity.
+//
+// Bits:
+//    0-15: identity identifier
+//   16-23: cluster identifier
 type NumericIdentity uint32
 
 func ParseNumericIdentity(id string) (NumericIdentity, error) {
