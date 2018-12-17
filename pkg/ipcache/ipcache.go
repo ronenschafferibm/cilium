@@ -48,6 +48,10 @@ const (
 	// FromAgentLocal is the source used for identities derived during the
 	// agent bootup process. This includes identities for endpoint IPs.
 	FromAgentLocal Source = "agent-local"
+
+	// FromCIDR is the source used for identities that have been derived
+	// from local CIDR representations
+	FromCIDR = "cidr"
 )
 
 // Identity is the identity representation of an IP<->Identity cache.
@@ -183,12 +187,14 @@ func unrefPrefixLength(prefixLengths map[int]int, length int) {
 func allowOverwrite(existing, new Source) bool {
 	switch existing {
 	case FromKubernetes:
-		// k8s entries can be overwritten by everyone else
-		return true
+		return new != FromCIDR
 	case FromKVStore:
 		return new == FromKVStore || new == FromAgentLocal
 	case FromAgentLocal:
 		return new == FromAgentLocal
+
+	case FromCIDR:
+		return new == FromCIDR
 	}
 
 	return true
@@ -339,7 +345,7 @@ func (ipc *IPCache) DumpToListenerLocked(listener IPIdentityMappingListener) {
 
 // deleteLocked removes removes the provided IP-to-security-identity mapping
 // from ipc with the assumption that the IPCache's mutex is held.
-func (ipc *IPCache) deleteLocked(ip string) {
+func (ipc *IPCache) deleteLocked(ip string, source Source) {
 	scopedLog := log.WithFields(logrus.Fields{
 		logfields.IPAddr: ip,
 	})
@@ -347,6 +353,11 @@ func (ipc *IPCache) deleteLocked(ip string) {
 	cachedIdentity, found := ipc.ipToIdentityCache[ip]
 	if !found {
 		scopedLog.Debug("Attempt to remove non-existing IP from ipcache layer")
+		return
+	}
+
+	if cachedIdentity.Source != source {
+		scopedLog.Debugf("Skipping delete of identity from source %s", source)
 		return
 	}
 
@@ -426,10 +437,10 @@ func (ipc *IPCache) deleteLocked(ip string) {
 }
 
 // Delete removes the provided IP-to-security-identity mapping from the IPCache.
-func (ipc *IPCache) Delete(IP string) {
+func (ipc *IPCache) Delete(IP string, source Source) {
 	ipc.mutex.Lock()
 	defer ipc.mutex.Unlock()
-	ipc.deleteLocked(IP)
+	ipc.deleteLocked(IP, source)
 }
 
 // LookupByIP returns the corresponding security identity that endpoint IP maps
