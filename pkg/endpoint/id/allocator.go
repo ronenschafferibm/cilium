@@ -24,7 +24,7 @@ import (
 
 const (
 	minID = idpool.ID(1)
-	maxID = idpool.ID(^uint16(0))
+	maxID = idpool.ID(4095)
 )
 
 var (
