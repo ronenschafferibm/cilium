@@ -29,6 +29,10 @@ const (
 	// shifted
 	ClusterIDShift = 16
 
+	// LocalIdentityFlag is the bit in the numeric identity that identifies
+	// a numeric identity to have local scope
+	LocalIdentityFlag = NumericIdentity(1 << 24)
+
 	// MinimalNumericIdentity represents the minimal numeric identity not
 	// used for reserved purposes.
 	MinimalNumericIdentity = NumericIdentity(256)
@@ -341,4 +345,9 @@ func IterateReservedIdentities(f func(key string, value NumericIdentity)) {
 	for key, value := range reservedIdentities {
 		f(key, value)
 	}
+}
+
+// HasLocalScope returns true if the identity has a local scope
+func (id NumericIdentity) HasLocalScope() bool {
+	return (id & LocalIdentityFlag) != 0
 }
