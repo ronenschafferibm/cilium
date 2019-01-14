@@ -23,7 +23,8 @@ GO_BINDATA := $(QUIET) go-bindata -prefix ../ -mode 0640 -modtime 1450269211 \
 all: $(TARGET) links
 
 links:
-	$(foreach link,$(LINKS), ln -f -s $(TARGET) $(link);)
+	#$(foreach link,$(LINKS), ln -f -s $(TARGET) $(link);)
+	$(foreach link,$(LINKS), cp $(TARGET) $(link);)
 
 clean:
 	@$(ECHO_CLEAN)
